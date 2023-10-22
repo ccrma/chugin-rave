@@ -428,7 +428,7 @@ CK_DLL_CTOR(rave_ctor)
     Chuck_UGen* self = (Chuck_UGen*)SELF;
     
     // instantiate our internal c++ class representation
-    Rave * r_obj = new Rave(API->vm->get_srate(API, SHRED), self);
+    Rave * r_obj = new Rave(API->vm->srate(VM), self);
 
     // store the pointer in the ChucK object member
     OBJ_MEMBER_INT(SELF, rave_data_offset) = (t_CKINT) r_obj;
@@ -473,14 +473,14 @@ CK_DLL_MFUN(rave_load)
     Chuck_String* mdl = GET_NEXT_STRING(ARGS);
     std::string model_name = std::string(mdl->c_str());
     std::string model = r_obj->load(model_name);
-    RETURN->v_string = (Chuck_String*)API->object->create_string(API, SHRED, model.c_str());
+    RETURN->v_string = (Chuck_String*)API->object->create_string(VM, model.c_str());
 }
 
 CK_DLL_MFUN(rave_getModel)
 {
     Rave* r_obj = (Rave*)OBJ_MEMBER_INT(SELF, rave_data_offset);
     std::string model = r_obj->m_model_path;
-    RETURN->v_string = (Chuck_String*)API->object->create_string(API, SHRED, model.c_str());
+    RETURN->v_string = (Chuck_String*)API->object->create_string(VM, model.c_str());
 }
 
 CK_DLL_MFUN(rave_setMethod)
@@ -495,7 +495,7 @@ CK_DLL_MFUN(rave_setMethod)
     if (r_obj->setMethod(GET_NEXT_STRING(ARGS)->str())) {
         method = r_obj->m_method;
     }
-    RETURN->v_string = (Chuck_String*)API->object->create_string(API, SHRED, method.c_str());
+    RETURN->v_string = (Chuck_String*)API->object->create_string(VM, method.c_str());
 }
 
 CK_DLL_MFUN(rave_getMethod)
@@ -504,7 +504,7 @@ CK_DLL_MFUN(rave_getMethod)
     Rave* r_obj = (Rave*)OBJ_MEMBER_INT(SELF, rave_data_offset);
 
     std::string method = r_obj->m_method;
-    RETURN->v_string = (Chuck_String*)API->object->create_string(API, SHRED, method.c_str());
+    RETURN->v_string = (Chuck_String*)API->object->create_string(VM, method.c_str());
 }
 
 CK_DLL_MFUN(rave_init)
@@ -517,8 +517,8 @@ CK_DLL_MFUN(rave_init)
         method = r_obj->m_method;
     }
 
-    (Chuck_String*)API->object->create_string(API, SHRED, model.c_str());
-    (Chuck_String*)API->object->create_string(API, SHRED, method.c_str());
+    (Chuck_String*)API->object->create_string(VM, model.c_str());
+    (Chuck_String*)API->object->create_string(VM, method.c_str());
 }
 
 CK_DLL_MFUN(rave_getChannels)
