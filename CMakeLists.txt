@@ -47,7 +47,33 @@ set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
 add_subdirectory(nn_tilde/src/backend) # DEEP LEARNING BACKEND
 find_package(Torch REQUIRED)
 
-# message(torch-include-dir="${TORCH_INCLUDE_DIRS}")
+
+####################################################################
+# Because the libtorch cmake scripts are not set up to handle static
+# build properly, this takes the returned ${TORCH_LIBRARIES} variable
+# from find_package(Torch REQUIRED) and wraps a group around the link
+# to libtorch_cpu.a This is needed to avoid circular dependencies with
+# the other .a files
+####################################################################
+
+message(torch_libs=${TORCH_LIBRARIES})
+set(_updated_torch_libs)
+
+foreach (item ${TORCH_LIBRARIES})
+    string(REGEX MATCH "libtorch_cpu.a" is_match "${item}")
+    # once we find the offending file, wrap it in a group...
+    if(is_match)
+        list(APPEND _updated_torch_libs "-Wl,--start-group")
+        list(APPEND _updated_torch_libs "${item}")
+        list(APPEND _updated_torch_libs "-Wl,--end-group")
+    else()
+        list(APPEND _updated_torch_libs "${item}")
+    endif()
+endforeach()
+
+# repalce the existing TORCH_LIBRARIES var with our new one
+set(TORCH_LIBRARIES ${_updated_torch_libs})
+
 include_directories(
     "${TORCH_INCLUDE_DIRS}" # libtorch headers
 )
@@ -128,7 +154,6 @@ if(MSVC)
     __WINDOWS_DS__
    )
 endif()
-
 
 target_link_libraries(rave PRIVATE backend "${TORCH_LIBRARIES}")
 
