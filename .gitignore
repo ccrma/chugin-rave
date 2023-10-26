@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# others
+*.ts
+circular_buffer_tests/*
