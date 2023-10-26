@@ -78,9 +78,11 @@ include_directories(
     "${TORCH_INCLUDE_DIRS}" # libtorch headers
 )
 
+message(cmake_source_dir="${CMAKE_CURRENT_SOURCE_DIR}")
+
 # list of chuck files
 FILE(GLOB CK_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/../chuck/include/*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/cheaders/include/*.h
   # ${CMAKE_CURRENT_SOURCE_DIR}/../chuck/include/util_sndfile.c
 )
 
@@ -159,7 +161,7 @@ target_link_libraries(rave PRIVATE backend "${TORCH_LIBRARIES}")
 
 # Include header directories
 target_include_directories(rave PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../chuck/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cheaders/include>
   # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../chuck/include/chuck_dl.h>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/nn_tilde/src/backend>
     $<INSTALL_INTERFACE:rave

@@ -1,3 +1,6 @@
 [submodule "nn_tilde"]
 	path = nn_tilde
 	url = https://github.com/nshaheed/nn_tilde.git
+[submodule "cheaders"]
+	path = cheaders
+	url = https://github.com/ccrma/cheaders.git
