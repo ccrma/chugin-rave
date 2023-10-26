@@ -1,0 +1,9 @@
+*build
+src/externals
+src/frontend/tests
+src/tests
+.vscode
+*libtorch
+*DS_Store*
+src/docs
+*.ts
