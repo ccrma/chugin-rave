@@ -2,9 +2,7 @@
 
 // I can get 7 here on the laptop w/ gpu (rtx 3050)
 // Need to now test w/ cpu
-repeat(2) {
-=======
-for(int i; i < 12; i++) {
+repeat(1) {
 TriOsc s => Rave r => dac;
 //adc => Rave r => blackhole;
 
