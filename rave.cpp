@@ -22,9 +22,7 @@ TODOS
 #include "nn_tilde/src/frontend/maxmsp/shared/circular_buffer.h"
 
 // this should align with the correct versions of these ChucK files
-#include "chuck_dl.h"
-#include "chuck_def.h"
-#include "chuck_ugen.h"
+#include "chugin.h"
 
 // general includes
 #include <stdio.h>
@@ -117,9 +115,9 @@ public:
     // destructor
     ~Rave() {
         // return channels sizes to initialized amount
-        m_self->m_num_ins = max_channels;
-        m_self->m_num_outs = max_channels;
-        m_self->m_multi_chan_size = max_channels;
+        // m_self->m_num_ins = max_channels;
+        // m_self->m_num_outs = max_channels;
+        // m_self->m_multi_chan_size = max_channels;
 
         if (m_compute_thread) m_compute_thread->join();
     }
@@ -240,7 +238,8 @@ public:
         // audio and not latent values, then copy to every channel so the mono
         // output is right volume.
         if (m_method == "forward" || m_method == "decode") {
-            int chans = m_self->m_multi_chan_size;
+            // int chans = m_self->m_multi_chan_size;
+            int chans = max_channels;
             for (int c(1); c < chans; c++) {
                 for (int i(0); i < nframes; i++) {
                     // assuming mono for now
@@ -471,7 +470,7 @@ CK_DLL_MFUN(rave_load)
     // set the return value
     // RETURN->v_float = r_obj->setParam(GET_NEXT_FLOAT(ARGS));
     Chuck_String* mdl = GET_NEXT_STRING(ARGS);
-    std::string model_name = std::string(mdl->c_str());
+    std::string model_name = std::string(API->object->str(mdl));
     std::string model = r_obj->load(model_name);
     RETURN->v_string = (Chuck_String*)API->object->create_string(VM, model.c_str(), FALSE);
 }
@@ -492,7 +491,8 @@ CK_DLL_MFUN(rave_setMethod)
     std::string method = "";
 
     // RETURN->v_float = r_obj->setParam(GET_NEXT_FLOAT(ARGS));
-    if (r_obj->setMethod(GET_NEXT_STRING(ARGS)->str())) {
+    std::string method_arg = std::string(API->object->str(GET_NEXT_STRING(ARGS)));
+    if (r_obj->setMethod(method_arg)) {
         method = r_obj->m_method;
     }
     RETURN->v_string = (Chuck_String*)API->object->create_string(VM, method.c_str(), FALSE);
@@ -510,10 +510,12 @@ CK_DLL_MFUN(rave_getMethod)
 CK_DLL_MFUN(rave_init)
 {
     Rave* r_obj = (Rave*)OBJ_MEMBER_INT(SELF, rave_data_offset);
+    std::string model_arg = std::string(API->object->str(GET_NEXT_STRING(ARGS)));
+    std::string method_arg = std::string(API->object->str(GET_NEXT_STRING(ARGS)));
 
-    std::string model = r_obj->load(GET_NEXT_STRING(ARGS)->str());
+    std::string model = r_obj->load(model_arg);
     std::string method = "";
-    if (r_obj->setMethod(GET_NEXT_STRING(ARGS)->str())) {
+    if (r_obj->setMethod(method_arg)) {
         method = r_obj->m_method;
     }
 
