@@ -40,7 +40,8 @@ if(MSVC)
 endif()
 
 # the rpath is where the library will search for the *.so pytorch files
-set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
+# set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
+set(CMAKE_INSTALL_RPATH "$ENV{HOME}/.chuck/lib/Rave")
 
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -173,7 +174,8 @@ target_include_directories(rave PUBLIC
 # Install library
 INSTALL(
   TARGETS rave
-  LIBRARY DESTINATION "/usr/local/lib/chuck/"
+  LIBRARY DESTINATION "$ENV{HOME}/.chuck/lib/Rave"
+  # LIBRARY DESTINATION "/usr/local/lib/chuck/"
   # LIBRARY DESTINATION ${CMAKE_INSTALL_RPATH}
   # ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   # RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
