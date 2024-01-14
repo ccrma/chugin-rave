@@ -25,9 +25,8 @@ How to make visual studio project:
 
 - First download [libtorch](https://pytorch.org/get-started/locally/). In the selector, pick `Stable > Windows > LibTorch > C++/Java > CPU`. Then download the release version. Note: If building for the gpu, you will probably need to install the same CUDA version as your libtorch download (you can install mulitple versions at the same time).
 - Unzip the file.
-- Make sure CMake is installed
 - Go into the terminal (preferably powershell or cygwin).
-- Navigate to the `chugins/rave/` directory.
+- Navigate to the `chugin-rave/` directory.
 - `git submodule update --init`
 - Make a `build` directory
 - `cd build`
@@ -37,3 +36,20 @@ How to build:
 - Navigate to build directory from above
 - `cmake --build . --config Release`
 - `sudo cmake --build . --config Release --target install` to install
+
+## Linux (requires CMake)
+How to create the project:
+
+- First download [libtorch](https://pytorch.org/get-started/locally/). In the selector, pick `Stable > Windows > LibTorch > C++/Java > CPU`. Then download the `cxx11 ABI` version. Note: If building for the gpu, you will probably need to install the same CUDA version as your libtorch download (you can install mulitple versions at the same time).
+- Unzip the file
+- Navigate to the `chugin-rave/` directory.
+- `git submodule update --init`
+-  Make a `build` directory
+-  `cd build`
+-  `cmake . -S ../  -DTorch_DIR="<Path to LibTorch>/libtorch/share/cmake/Torch"`
+-  If you get an error about unix makefiles not support x64 or something similar try building with Ninja: `cmake . -S ../ -G Ninja -DTorch_DIR="<Path to LibTorch>/libtorch/share/cmake/Torch"`
+
+How to build:
+- Navigate to build directory from above
+- `cmake --build . `
+- `sudo cmake --build . --target install` to install
