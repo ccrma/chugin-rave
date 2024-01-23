@@ -31,7 +31,6 @@ TODOS
 #include <chrono>
 using namespace std::chrono;
 
-
 // declaration of chugin constructor
 CK_DLL_CTOR(rave_ctor);
 // declaration of chugin desctructor
@@ -344,6 +343,22 @@ private:
     // instance data
     Chuck_UGen* m_self;
 };
+
+//-----------------------------------------------------------------------------
+// info function: ChucK calls this when loading/probing the chugin
+// NOTE: please customize these info fields below; they will be used for
+// chugins loading, probing, and package management and documentation
+//-----------------------------------------------------------------------------
+CK_DLL_INFO( rave )
+{
+    QUERY->setinfo( QUERY, CHUGIN_INFO_CHUGIN_VERSION, "v0.9.0" );
+    QUERY->setinfo( QUERY, CHUGIN_INFO_AUTHORS, "Nick Shaheeed" );
+    // text description of this chugin; what is it? what does it do? who is it for?
+    QUERY->setinfo( QUERY, CHUGIN_INFO_DESCRIPTION, "A UGen to load and run RAVE (Realtime Audio Variational autoEncoder) models (Caillon and Esling). See https://github.com/acids-ircam/RAVE for more info." );
+    // (optional) URL of the homepage for this chugin
+    QUERY->setinfo( QUERY, CHUGIN_INFO_URL, "https://github.com/ccrma/chugin-rave" );
+    QUERY->setinfo( QUERY, CHUGIN_INFO_EMAIL, "nshaheed@ccrma.stanford.edu" );
+}
 
 // query function: chuck calls this when loading the Chugin
 // NOTE: developer will need to modify this function to
