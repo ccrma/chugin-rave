@@ -62,7 +62,7 @@ How to build:
 - `git submodule update --init`
 - Make a `build` directory
 - `cd build`
-- `cmake . -S ../ -DTorch_DIR="<Path to LibTorch>/libtorch/share/cmake/Torch” -DCMAKE_BUILD_TYPE=Release`
+- `cmake . -S ../ -DTorch_DIR="<Path to LibTorch>/libtorch/share/cmake/Torch" -DCMAKE_BUILD_TYPE=Release`
 - `cmake —build . —target install`
 
 How to build:
