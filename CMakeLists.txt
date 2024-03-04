@@ -112,10 +112,7 @@ elseif(LINUX)
 elseif(APPLE)
   message("in apple ${torch_dir_absolute}")
   FILE(GLOB Torch_so
-     "${torch_dir_absolute}/../../../lib/libc10.dylib"
-     "${torch_dir_absolute}/../../../lib/libiomp5.dylib"
-     "${torch_dir_absolute}/../../../lib/libtorch.dylib"
-     "${torch_dir_absolute}/../../../lib/libtorch_cpu.dylib"
+     "${torch_dir_absolute}/../../../lib/*.dylib"
 )
 endif()
 
