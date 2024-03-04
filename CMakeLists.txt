@@ -41,7 +41,11 @@ endif()
 
 # the rpath is where the library will search for the *.so pytorch files
 # set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
-set(CMAKE_INSTALL_RPATH "$ORIGIN")
+
+# this allows the chugin to search for dylibs in ./
+if (LINUX)
+   set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
 
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -93,19 +97,27 @@ FILE(GLOB NN_TILDE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/nn_tilde/src/backend/*.h
   ${CMAKE_CURRENT_SOURCE_DIR}/nn_tilde/src/frontend/maxmsp/shared/*.h)
 
-# find all libtorch dlls that eventually need to be copied over
-FILE(GLOB Torch_DLLs
-  "${Torch_DIR}/../../../lib/*.dll")
-
-# FILE(REAL_PATH "~/downloads/libtorch/lib/" outdir EXPAND_TILDE)
-
 # CMake doesn't expand ~/ by default, so we do that here
 get_filename_component(torch_dir_absolute ${Torch_DIR} ABSOLUTE)
-      
-FILE(GLOB Torch_so
-  "${torch_dir_absolute}/../../../lib/*.so"
-  "${torch_dir_absolute}/../../../lib/*.so.1"
-  )
+
+# find all libtorch dlls that eventually need to be copied over
+if (MSVC)
+   FILE(GLOB Torch_DLLs
+     "${Torch_DIR}/../../../lib/*.dll")
+elseif(LINUX)
+   FILE(GLOB Torch_so
+     "${torch_dir_absolute}/../../../lib/*.so"
+     "${torch_dir_absolute}/../../../lib/*.so.1"
+   )
+elseif(APPLE)
+  message("in apple ${torch_dir_absolute}")
+  FILE(GLOB Torch_so
+     "${torch_dir_absolute}/../../../lib/libc10.dylib"
+     "${torch_dir_absolute}/../../../lib/libiomp5.dylib"
+     "${torch_dir_absolute}/../../../lib/libtorch.dylib"
+     "${torch_dir_absolute}/../../../lib/libtorch_cpu.dylib"
+)
+endif()
 
 FILE(GLOB readme
   "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
@@ -132,6 +144,14 @@ set_target_properties(rave PROPERTIES CXX_STANDARD 17)
 set_target_properties(rave PROPERTIES OUTPUT_NAME "Rave.chug")
 set_target_properties(rave PROPERTIES PREFIX "")
 set_target_properties(rave PROPERTIES SUFFIX "")
+
+# this allows the chugin to search for dylibs in ./
+if (APPLE)
+   set_target_properties(rave PROPERTIES
+     BUILD_WITH_INSTALL_RPATH TRUE
+     INSTALL_RPATH "@loader_path"
+   )
+endif()
 # set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 # target_compile_definitions(rave PUBLIC)
@@ -141,7 +161,7 @@ target_compile_definitions(rave
   # USE_BUILTIN_FFT
   __PLATFORM_LINUX__
   USE_PTHREADS
-  )   
+  )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC")
 
 
@@ -215,7 +235,7 @@ add_custom_command(TARGET ${PROJECT_NAME}
   "$<TARGET_FILE_DIR:rave>/rave.chug")
 
 
-                   
+
 if (MSVC)
   set_target_properties(${PROJECT_NAME} PROPERTIES
                         VS_DEBUGGER_COMMAND "C:\\Users\\nick\\Documents\\chuck\\src\\visual-studio\\Debug\\chuck.exe"
@@ -252,16 +272,16 @@ endif()
 set(UNIT_TEST_TARGET_NAME rave_test)
 add_library(${UNIT_TEST_TARGET_NAME} SHARED)
 
-target_sources(${UNIT_TEST_TARGET_NAME} PRIVATE 
+target_sources(${UNIT_TEST_TARGET_NAME} PRIVATE
     rave_test.cpp
 )
-target_link_libraries(${UNIT_TEST_TARGET_NAME} 
-    PRIVATE 
+target_link_libraries(${UNIT_TEST_TARGET_NAME}
+    PRIVATE
 	MSUnitTestFramework::MSUnitTestFramework
 	rave
 	backend
 )
-	
+
 enable_testing()
 
 add_library(MSUnitTestFramework::MSUnitTestFramework SHARED IMPORTED)
