@@ -39,11 +39,21 @@ if(MSVC)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT")
 endif()
 
+include(FetchContent)
+FetchContent_Declare(
+    cheaders
+    GIT_REPOSITORY https://github.com/nshaheed/cheaders.git
+    GIT_TAG test
+)
+# FetchContent_Declare(cheaders URL https://github.com/nshaheed/cheaders/archive/refs/tags/test.tar.gz)
+FetchContent_MakeAvailable(cheaders)
+
 # the rpath is where the library will search for the *.so pytorch files
 # set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
 set(CMAKE_INSTALL_RPATH "$ORIGIN")
 
-# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# Enable BUILD_RPATH_USE_ORIGIN
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 add_subdirectory(nn_tilde/src/backend) # DEEP LEARNING BACKEND
 find_package(Torch REQUIRED)
@@ -185,10 +195,21 @@ INSTALL(
   LIBRARY DESTINATION "${CMAKE_BINARY_DIR}/Release/"
   )
 
+message("library install dir: ${CMAKE_INSTALL_LIBDIR}")
+
+file(GENERATE
+    OUTPUT "$<TARGET_FILE_DIR:rave>/archive.zip"
+    CONTENT "$<TARGET_FILE:rave>"
+)
+
 message(STATUS "bindir")
 message(CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
 message(CMAKE_INSTALL_BINDIR="${CMAKE_INSTALL_BINDIR}")
 message(CMAKE_INSTALL_LIBDIR="${CMAKE_INSTALL_LIBDIR}")
+
+get_target_property(EXECUTABLE_LOCATION rave RUNTIME_OUTPUT_DIRECTORY)
+message("Executable Location: ${EXECUTABLE_LOCATION}/rave")
+
 
 
 INSTALL(
