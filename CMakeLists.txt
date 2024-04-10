@@ -8,7 +8,6 @@ project(rave VERSION 0.0.1)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT rave)
 
-
 #######################
 # Download pytorch libs
 #######################
@@ -49,6 +48,16 @@ endif()
 set(Torch_DIR "${pytorch_SOURCE_DIR}/share/cmake/Torch")
 find_package(Torch REQUIRED)
 
+#######################
+# Download chuck headers
+#######################
+FetchContent_Declare(
+    cheaders
+    GIT_REPOSITORY https://github.com/nshaheed/cheaders.git
+    GIT_TAG test
+)
+FetchContent_MakeAvailable(cheaders)
+
 
 if(MSVC)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
@@ -57,15 +66,6 @@ if(MSVC)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MT")
 endif()
 
-include(FetchContent)
-FetchContent_Declare(
-    cheaders
-    GIT_REPOSITORY https://github.com/nshaheed/cheaders.git
-    GIT_TAG test
-)
-# FetchContent_Declare(cheaders URL https://github.com/nshaheed/cheaders/archive/refs/tags/test.tar.gz)
-FetchContent_MakeAvailable(cheaders)
-
 # the rpath is where the library will search for the *.so pytorch files
 # set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
 set(CMAKE_INSTALL_RPATH "$ORIGIN")
@@ -73,17 +73,19 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN")
 # Enable BUILD_RPATH_USE_ORIGIN
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
+# subdirectories from original nn_tilde code
 add_subdirectory(nn_tilde/src/backend) # DEEP LEARNING BACKEND
 
-message(cmake_source_dir="${CMAKE_CURRENT_SOURCE_DIR}")
+# message(cmake_source_dir="${CMAKE_CURRENT_SOURCE_DIR}")
+
+#############
+# Add sources
+#############
 
 # list of chuck files
 FILE(GLOB CK_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/cheaders/include/*.h
-  # ${CMAKE_CURRENT_SOURCE_DIR}/../chuck/include/util_sndfile.c
 )
-
-# set_source_files_properties(CK_SOURCE PROPERTIES HEADER_FILE_ONLY TRUE)
 
 FILE(GLOB NN_TILDE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/nn_tilde/src/backend/*.h
@@ -93,14 +95,10 @@ FILE(GLOB NN_TILDE_SOURCES
 FILE(GLOB Torch_DLLs
   "${Torch_DIR}/../../../lib/*.dll")
 
-# FILE(REAL_PATH "~/downloads/libtorch/lib/" outdir EXPAND_TILDE)
-
-# CMake doesn't expand ~/ by default, so we do that here
-get_filename_component(torch_dir_absolute ${Torch_DIR} ABSOLUTE)
-      
+# List all DLLs into a glob (for installing later)
 FILE(GLOB Torch_so
-  "${torch_dir_absolute}/../../../lib/*.so"
-  "${torch_dir_absolute}/../../../lib/*.so.1"
+  "${pytorch_SOURCE_DIR}/lib/*.so"
+  "${pytorch_SOURCE_DIR}/../../../lib/*.so.1"
   )
 
 FILE(GLOB readme
@@ -110,7 +108,6 @@ FILE(GLOB readme
 message(STATUS "torch_so")
 message(Torch_so="${Torch_so}")
 message(CMAKE_BINARY_DIR="${CMAKE_BINARY_DIR}")
-message(torch_dir_absolute"${torch_dir_absolute}")
 message(NN_TILDE_SOURCES="${NN_TILDE_SOURCES}")
 message(Torch_DLLS="${Torch_DLLs}")
 message(Torch_DIR="${Torch_DIR}")
@@ -188,11 +185,6 @@ file(GENERATE
     CONTENT "$<TARGET_FILE:rave>"
 )
 
-message(STATUS "bindir")
-message(CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
-message(CMAKE_INSTALL_BINDIR="${CMAKE_INSTALL_BINDIR}")
-message(CMAKE_INSTALL_LIBDIR="${CMAKE_INSTALL_LIBDIR}")
-
 get_target_property(EXECUTABLE_LOCATION rave RUNTIME_OUTPUT_DIRECTORY)
 message("Executable Location: ${EXECUTABLE_LOCATION}/rave")
 
@@ -209,10 +201,6 @@ INSTALL(
 INSTALL(
   FILES ${readme}
   DESTINATION "${CMAKE_BINARY_DIR}/Release/")
-
-# INSTALL(
-#   FILES ${Torch_so}
-#   DESTINATION "/usr/local/lib/chuck")
 
 # rename to .chug file
 add_custom_command(TARGET ${PROJECT_NAME}
