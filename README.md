@@ -53,3 +53,19 @@ How to build:
 - Navigate to build directory from above
 - `cmake --build . `
 - `sudo cmake --build . --target install` to install
+
+## MacOS (requires CMake)
+- First download [libtorch](https://pytorch.org/get-started/locally/). In the selector, pick Stable > Mac > LibTorch > C++/Java > Default. Then download the release version. Pick x86 for Intels Macs and arm64 for M-series Macs.
+- Unzip the file.
+- Go to terminal.
+- Navigate to the `chugin-rave/` directory.
+- `git submodule update --init`
+- Make a `build` directory
+- `cd build`
+- `cmake . -S ../ -DTorch_DIR="<Path to LibTorch>/libtorch/share/cmake/Torch" -DCMAKE_BUILD_TYPE=Release`
+- `cmake —build . —target install`
+
+How to build:
+- Navigate to build directory from above
+- `cmake --build . `
+- `sudo cmake --build . --target install` to install
