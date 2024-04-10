@@ -3,7 +3,7 @@
 # - have bundle install maybe? idk
 # - upload a release with a readme
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(rave VERSION 0.0.1)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT rave)
@@ -13,24 +13,42 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT r
 # Download pytorch libs
 #######################
 
-# include(FetchContent)
+include(FetchContent)
 # Set(FETCHCONTENT_QUIET FALSE)
 
-# # set(url https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.1.0%2Bcpu.zip)
-# set(url https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.0%2Bcpu.zip)
-
-# FetchContent_Declare(Torch
-#   URL ${url}
-#   # URL_HASH SHA256=${hash}
-#   )
-
-# FetchContent_MakeAvailable(Torch)
-# list(APPEND CMAKE_PREFIX_PATH "${torch_SOURCE_DIR}")
-
-# set(Torch_DIR "${torch_SOURCE_DIR}/share/cmake/Torch/")
-# set(TORCH_INSTALL_PREFIX "${Torch_DIR}/")
-
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+
+# Set download url for system-specific pytorch libs
+if(WIN32)
+    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
+elseif(APPLE)
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.2.zip")
+    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+        set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.2.zip")
+    else()
+        message(STATUS "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+    endif()
+else() # linux
+    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
+endif()
+
+# Download pytorch libs
+FetchContent_Declare(
+    pytorch
+    URL ${url}
+)
+
+# Needed to get package locations and such
+FetchContent_GetProperties(pytorch)
+if(NOT pytorch_POPULATED)
+    FetchContent_Populate(pytorch)
+endif()
+
+# Cmake doesn't pick this up automatically for whatever reason...
+set(Torch_DIR "${pytorch_SOURCE_DIR}/share/cmake/Torch")
+find_package(Torch REQUIRED)
+
 
 if(MSVC)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
@@ -56,38 +74,6 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 add_subdirectory(nn_tilde/src/backend) # DEEP LEARNING BACKEND
-find_package(Torch REQUIRED)
-
-
-####################################################################
-# Because the libtorch cmake scripts are not set up to handle static
-# build properly, this takes the returned ${TORCH_LIBRARIES} variable
-# from find_package(Torch REQUIRED) and wraps a group around the link
-# to libtorch_cpu.a This is needed to avoid circular dependencies with
-# the other .a files
-####################################################################
-
-message(torch_libs=${TORCH_LIBRARIES})
-set(_updated_torch_libs)
-
-foreach (item ${TORCH_LIBRARIES})
-    string(REGEX MATCH "libtorch_cpu.a" is_match "${item}")
-    # once we find the offending file, wrap it in a group...
-    if(is_match)
-        list(APPEND _updated_torch_libs "-Wl,--start-group")
-        list(APPEND _updated_torch_libs "${item}")
-        list(APPEND _updated_torch_libs "-Wl,--end-group")
-    else()
-        list(APPEND _updated_torch_libs "${item}")
-    endif()
-endforeach()
-
-# repalce the existing TORCH_LIBRARIES var with our new one
-set(TORCH_LIBRARIES ${_updated_torch_libs})
-
-include_directories(
-    "${TORCH_INCLUDE_DIRS}" # libtorch headers
-)
 
 message(cmake_source_dir="${CMAKE_CURRENT_SOURCE_DIR}")
 
