@@ -7,7 +7,7 @@ How to make visual studio project:
 - `git submodule update --init`
 - Make a `build` directory
 - `cd build`
-- `cmake . -S ..\  -DCMAKE_BUILD_TYPE:STRING=Release -G "Visual Studio 17 2022" -A x64"`
+- `cmake . -S ..\  -DCMAKE_BUILD_TYPE:STRING=Release -G "Visual Studio 17 2022" -A "x64"`
 
 How to build:
 - Navigate to `build` directory from above
