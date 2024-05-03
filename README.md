@@ -37,9 +37,14 @@ How to create the project:
 - `git submodule update --init`
 - Make a `build` directory
 - `cd build`
-- `cmake . -S ../ -DCMAKE_BUILD_TYPE=Release`
 
-How to build:
+To configure for Apple Silicon (arm64):
+- `cmake . -S ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64`
+
+To configure for Intel (x86_64):
+- `cmake . -S ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64`
+
+To build:
 - Navigate to `build` directory from above
 - `cmake --build . ` to just build
 - `sudo cmake --build . --target install` to build & install
