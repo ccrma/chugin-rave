@@ -21,10 +21,10 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 if(WIN32)
     set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
 elseif(APPLE)
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
         set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.2.zip")
-    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-        set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.2.zip")
+    elseif(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
+        set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-2.0.1.zip")
     else()
         message(STATUS "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
     endif()
@@ -51,13 +51,12 @@ find_package(Torch REQUIRED)
 #######################
 # Download chuck headers
 #######################
-FetchContent_Declare(
-    cheaders
-    GIT_REPOSITORY https://github.com/nshaheed/cheaders.git
-    GIT_TAG test
-)
-FetchContent_MakeAvailable(cheaders)
-
+#FetchContent_Declare(
+#    cheaders
+#    GIT_REPOSITORY https://github.com/nshaheed/cheaders.git
+#    GIT_TAG test
+#)
+#FetchContent_MakeAvailable(cheaders)
 
 if(MSVC)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
