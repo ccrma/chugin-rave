@@ -46,5 +46,5 @@ To configure for Intel (x86_64):
 
 To build:
 - Navigate to `build` directory from above
-- `cmake --build . ` to just build
-- `sudo cmake --build . --target install` to build & install
+- `cmake --build .` (build only) 
+- `cmake --build . --target install` (build to `Release` folder, along with dylib dependencies) 
