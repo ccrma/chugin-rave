@@ -23,6 +23,7 @@ if(WIN32)
 elseif(APPLE)
     if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
         set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.2.zip")
+        set(urlomp "https://chuck.stanford.edu/release/files/extra/libomp-macos-arm64.zip")
     elseif(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
         set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-2.0.1.zip")
     else()
@@ -43,6 +44,19 @@ FetchContent_GetProperties(pytorch)
 if(NOT pytorch_POPULATED)
     FetchContent_Populate(pytorch)
 endif()
+
+# Download libomp (workaround for macOS arm64 build)
+if(APPLE AND CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+  FetchContent_Declare(
+    libomp
+    URL ${urlomp}
+)
+
+# Needed to get package locations and such
+FetchContent_MakeAvailable(libomp)
+
+endif()
+
 
 # Cmake doesn't pick this up automatically for whatever reason...
 set(Torch_DIR "${pytorch_SOURCE_DIR}/share/cmake/Torch")
@@ -107,6 +121,7 @@ elseif(LINUX)
 elseif(APPLE)
   FILE(GLOB Torch_so
      "${pytorch_SOURCE_DIR}/lib/*.dylib"
+     "${libomp_SOURCE_DIR}/*.dylib"
 )
 endif()
 
@@ -181,14 +196,14 @@ target_include_directories(rave PUBLIC
 
 
 # Install library
-INSTALL(
-  TARGETS rave
-  LIBRARY DESTINATION "$ENV{HOME}/.chuck/lib/Rave"
+# INSTALL(
+  # TARGETS rave
+  # LIBRARY DESTINATION "$ENV{HOME}/.chuck/lib/Rave"
   # LIBRARY DESTINATION "/usr/local/lib/chuck/"
   # LIBRARY DESTINATION ${CMAKE_INSTALL_RPATH}
   # ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   # RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
+# )
 
 INSTALL(
   TARGETS rave
@@ -207,9 +222,9 @@ message("Executable Location: ${EXECUTABLE_LOCATION}/rave")
 
 
 
-INSTALL(
-  FILES ${Torch_so}
-  DESTINATION "$ENV{HOME}/.chuck/lib/Rave")
+#INSTALL(
+#  FILES ${Torch_so}
+#  DESTINATION "$ENV{HOME}/.chuck/lib/Rave")
 
 INSTALL(
   FILES ${Torch_so}

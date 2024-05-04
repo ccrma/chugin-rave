@@ -15,7 +15,6 @@ TODOS
 - fix --adaptive issue [DONE]
 - add cuda check on backend in mutex
 */
-#pragma once
 
 // nn_tilde includes
 #include "backend.h"
