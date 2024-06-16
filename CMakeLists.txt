@@ -19,7 +19,7 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 # Set download url for system-specific pytorch libs
 if(WIN32)
-    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
+    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.3.1%2Bcpu.zip")
 elseif(APPLE)
     if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
         # set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.2.zip")
@@ -34,6 +34,8 @@ elseif(APPLE)
 else() # linux
     set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
 endif()
+
+message("URL: ${url}")
 
 # Download pytorch libs
 FetchContent_Declare(
