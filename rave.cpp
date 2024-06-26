@@ -305,7 +305,7 @@ public:
 #ifdef _WIN32
         // only enable threading when GPU drivers are available
         if (!m_model.m_cuda_available) {
-            m_use_thread = true;
+            m_use_thread = false;
         }
 #endif
 
