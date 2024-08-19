@@ -350,7 +350,7 @@ private:
 //-----------------------------------------------------------------------------
 CK_DLL_INFO( rave )
 {
-    QUERY->setinfo( QUERY, CHUGIN_INFO_CHUGIN_VERSION, "v0.9.0" );
+    QUERY->setinfo( QUERY, CHUGIN_INFO_CHUGIN_VERSION, "v0.9.1" );
     QUERY->setinfo( QUERY, CHUGIN_INFO_AUTHORS, "Nick Shaheeed" );
     // text description of this chugin; what is it? what does it do? who is it for?
     QUERY->setinfo( QUERY, CHUGIN_INFO_DESCRIPTION, "A UGen to load and run RAVE (Realtime Audio Variational autoEncoder) models (Caillon and Esling). See https://github.com/acids-ircam/RAVE for more info." );
