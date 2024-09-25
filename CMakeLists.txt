@@ -32,7 +32,7 @@ elseif(APPLE)
         message(STATUS "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
     endif()
 else() # linux
-    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
+    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.2%2Bcpu.zip")
 endif()
 
 message("URL: ${url}")
