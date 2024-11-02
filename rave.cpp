@@ -291,6 +291,7 @@ public:
             // NO THREAD MODE
             m_use_thread = false;
             m_buffer_size = m_higher_ratio;
+            std::cout << "No threading mode" << std::endl;
         }
         else if (m_buffer_size < m_higher_ratio) {
             m_buffer_size = m_higher_ratio;
@@ -305,7 +306,11 @@ public:
 #ifdef _WIN32
         // only enable threading when GPU drivers are available
         if (!m_model.m_cuda_available) {
+            std::cout << "no cuda available, computing RAVE single-threaded" << std::endl;
             m_use_thread = false;
+        }
+        else {
+            std::cout << "cuda available, computing RAVE multi-threaded" << std::endl;
         }
 #endif
 

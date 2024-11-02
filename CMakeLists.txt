@@ -19,7 +19,12 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 # Set download url for system-specific pytorch libs
 if(WIN32)
+  if(GPU_BUILD) 
+    message("building with GPU libs...")
+    set(url "https://download.pytorch.org/libtorch/cu124/libtorch-win-shared-with-deps-2.4.0%2Bcu124.zip")
+  else()
     set(url "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.1.2%2Bcpu.zip")
+  endif()
 elseif(APPLE)
     if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
         # set(url "https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.2.zip")
