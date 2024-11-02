@@ -37,7 +37,7 @@ elseif(APPLE)
         message(STATUS "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
     endif()
 else() # linux
-    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip")
+    set(url "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.2%2Bcpu.zip")
 endif()
 
 message("URL: ${url}")
@@ -92,7 +92,7 @@ endif()
 # set(CMAKE_INSTALL_RPATH "/usr/local/lib/chuck/Rave")
 
 # this allows the chugin to search for dylibs in ./
-if (LINUX)
+if (UNIX AND NOT APPLE)
    set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
@@ -122,7 +122,8 @@ FILE(GLOB NN_TILDE_SOURCES
 if (MSVC)
    FILE(GLOB Torch_DLLs
      "${pytorch_SOURCE_DIR}/lib/*.dll")
-elseif(LINUX)
+elseif(UNIX AND NOT APPLE) # linux??
+    Message("in linux")
    FILE(GLOB Torch_so
      "${pytorch_SOURCE_DIR}/lib/*.so"
      "${pytorch_SOURCE_DIR}/lib/*.so.1"
@@ -235,6 +236,7 @@ message("Executable Location: ${EXECUTABLE_LOCATION}/rave")
 #  FILES ${Torch_so}
 #  DESTINATION "$ENV{HOME}/.chuck/lib/Rave")
 
+Message("torch so ${Torch_so}")
 INSTALL(
   FILES ${Torch_so}
   DESTINATION "${CMAKE_BINARY_DIR}/Release/")
