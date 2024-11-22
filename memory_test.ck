@@ -1,3 +1,5 @@
+@import "Rave"
+
 // load/unload a bunch of times to see if there's any memory leaks
 
 
@@ -8,6 +10,7 @@ fun void load() {
 }
 
 while (true) {
-	spork~ load();
-	1::second => now;
+	// spork~ load();
+	// 1::second => now;
+	load();
 }
