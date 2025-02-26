@@ -11,7 +11,7 @@ current:
 	@echo "   make mac, make linux, or make win"
 
 # build both architectures
-.PHONY: mac osx
+.PHONY: mac osx build-arm64 build-x86_64 download-models
 mac osx: build-arm64 build-x86_64
 
 # build a macOS arm64 Rave.chug
@@ -23,6 +23,12 @@ build-arm64:
 build-x86_64:
 	cmake -B build-x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
 	cmake --build build-x86_64 --target install
+
+# download the models from ccrma servers so we don't have to add them to the repo
+download-models:
+	mkdir -p models
+	curl -z models/chafe_cello.ts -o models/chafe_cello.ts https://ccrma.stanford.edu/~nshaheed/rave_models/chafe_cello.ts
+	curl -z models/downtempo_house.ts -o models/downtempo_house.ts https://ccrma.stanford.edu/~nshaheed/rave_models/downtempo_house.ts
 
 clean: 
 	rm -rf build-arm64 build-x86_64
