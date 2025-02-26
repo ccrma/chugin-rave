@@ -30,10 +30,15 @@ TODOS
 #include <chrono>
 using namespace std::chrono;
 
+#define VERSION "0.9.2"
+
 // declaration of chugin constructor
 CK_DLL_CTOR(rave_ctor);
 // declaration of chugin desctructor
 CK_DLL_DTOR(rave_dtor);
+
+// static functions
+CK_DLL_SFUN(rave_getVersion);
 
 // load model
 CK_DLL_MFUN(rave_load);
@@ -355,7 +360,7 @@ private:
 //-----------------------------------------------------------------------------
 CK_DLL_INFO( rave )
 {
-    QUERY->setinfo( QUERY, CHUGIN_INFO_CHUGIN_VERSION, "v0.9.1" );
+    QUERY->setinfo( QUERY, CHUGIN_INFO_CHUGIN_VERSION, VERSION );
     QUERY->setinfo( QUERY, CHUGIN_INFO_AUTHORS, "Nick Shaheeed" );
     // text description of this chugin; what is it? what does it do? who is it for?
     QUERY->setinfo( QUERY, CHUGIN_INFO_DESCRIPTION, "A UGen to load and run RAVE (Realtime Audio Variational autoEncoder) models (Caillon and Esling). See https://github.com/acids-ircam/RAVE for more info." );
@@ -393,6 +398,9 @@ CK_DLL_QUERY( rave )
     QUERY->add_mfun(QUERY, rave_load, "string", "model");
     QUERY->add_arg(QUERY, "string", "path");
     QUERY->doc_func(QUERY, "Load a model from a filepath.");
+
+    QUERY->add_sfun(QUERY, rave_getVersion, "string", "version");
+    QUERY->doc_func(QUERY, "Get version of RAVE chugin.");
 
     QUERY->add_mfun(QUERY, rave_getModel, "string", "model");
     QUERY->doc_func(QUERY, "Get model filepath.");
@@ -480,6 +488,10 @@ CK_DLL_TICKF(rave_tickf)
 
     // yes
     return TRUE;
+}
+
+CK_DLL_SFUN(rave_getVersion) {
+  RETURN->v_string = (Chuck_String*)API->object->create_string(VM, VERSION, false);
 }
 
 CK_DLL_MFUN(rave_load)
