@@ -32,13 +32,20 @@ using namespace std::chrono;
 
 #define VERSION "0.9.2"
 
+// store chugin dir as global var so it can be accessed from class methods
+static std::string chugin_dir = "";
+
 // declaration of chugin constructor
 CK_DLL_CTOR(rave_ctor);
+CK_DLL_CTOR(rave_ctor_model);
+CK_DLL_CTOR(rave_ctor_method);
 // declaration of chugin desctructor
 CK_DLL_DTOR(rave_dtor);
 
 // static functions
 CK_DLL_SFUN(rave_getVersion);
+CK_DLL_SFUN(rave_getCelloModel);
+CK_DLL_SFUN(rave_getDowntempoHouseModel);
 
 // load model
 CK_DLL_MFUN(rave_load);
@@ -139,7 +146,7 @@ public:
         }
 
         // TODO have variable buffer sizes to deal w/ latency
-        // Check if DSP vector size is 
+        // Check if DSP vector size is
         if (dsp_vec_size > m_buffer_size) {
             std::cerr << "vector size (" << dsp_vec_size << ") ";
             std::cerr << "larger than buffer size (" << m_buffer_size << "). ";
@@ -165,7 +172,7 @@ public:
         // assuming in dim of 1
         //for (int c(0); c < m_out_dim; c++)
 
-        
+
         // Code for debugging render time
         //auto start = high_resolution_clock::now();
         m_model.perform(in_model, out_model, m_buffer_size, m_method, 1);
@@ -320,7 +327,7 @@ public:
 #endif
 
         // Clip the UGen's inputs to the actual num of dimensions
-        // as an optimization   
+        // as an optimization
         /*
         m_self->m_num_ins = m_in_dim;
         m_self->m_num_outs = m_out_dim;
@@ -347,7 +354,7 @@ public:
     t_CKINT getOutChannels() { return m_out_dim; }
     t_CKINT getInChannels() { return m_in_dim; }
 
-    
+
 private:
     // instance data
     Chuck_UGen* m_self;
@@ -367,6 +374,9 @@ CK_DLL_INFO( rave )
     // (optional) URL of the homepage for this chugin
     QUERY->setinfo( QUERY, CHUGIN_INFO_URL, "https://github.com/ccrma/chugin-rave" );
     QUERY->setinfo( QUERY, CHUGIN_INFO_EMAIL, "nshaheed@ccrma.stanford.edu" );
+
+    // set the current chugin dir
+    chugin_dir = QUERY->getinfo( QUERY, "CHUGIN_INFO_INSTALL_DIR");
 }
 
 // query function: chuck calls this when loading the Chugin
@@ -376,7 +386,7 @@ CK_DLL_QUERY( rave )
 {
     // hmm, don't change this...
     QUERY->setname(QUERY, "Rave");
-    
+
     // begin the class definition
     // can change the second argument to extend a different ChucK class
     QUERY->begin_class(QUERY, "Rave", "UGen_Multi");
@@ -385,14 +395,23 @@ CK_DLL_QUERY( rave )
     QUERY->add_ctor(QUERY, rave_ctor);
     // register the destructor (probably no need to change)
     QUERY->add_dtor(QUERY, rave_dtor);
-    
+
     // for UGen's only: add tick function
     // QUERY->add_ugen_func(QUERY, rave_tick, NULL, 1, 1);
     QUERY->add_ugen_funcf(QUERY, rave_tickf, NULL, max_channels, max_channels);
-    
-    // NOTE: if this is to be a UGen with more than 1 channel, 
+
+    // NOTE: if this is to be a UGen with more than 1 channel,
     // e.g., a multichannel UGen -- will need to use add_ugen_funcf()
     // and declare a tickf function using CK_DLL_TICKF
+
+    QUERY->add_ctor( QUERY, rave_ctor_model );
+    QUERY->add_arg( QUERY, "string", "model_path" );
+    QUERY->doc_func( QUERY, "Construct Rave with the model 'model_path'");
+
+    QUERY->add_ctor( QUERY, rave_ctor_method );
+    QUERY->add_arg( QUERY, "string", "model_path" );
+    QUERY->add_arg( QUERY, "string", "method" );    
+    QUERY->doc_func( QUERY, "Construct Rave with the model 'model_path' and a 'method'");
 
     // register load method
     QUERY->add_mfun(QUERY, rave_load, "string", "model");
@@ -401,6 +420,12 @@ CK_DLL_QUERY( rave )
 
     QUERY->add_sfun(QUERY, rave_getVersion, "string", "version");
     QUERY->doc_func(QUERY, "Get version of RAVE chugin.");
+
+    QUERY->add_sfun(QUERY, rave_getCelloModel, "string", "celloModel");
+    QUERY->doc_func(QUERY, "Get the path to the included cello model.");
+
+    QUERY->add_sfun(QUERY, rave_getCelloModel, "string", "downtempoHouseModel");
+    QUERY->doc_func(QUERY, "Get the path to the included downtempo house model.");
 
     QUERY->add_mfun(QUERY, rave_getModel, "string", "model");
     QUERY->doc_func(QUERY, "Get model filepath.");
@@ -431,7 +456,7 @@ CK_DLL_QUERY( rave )
     QUERY->add_mfun(QUERY, rave_getEnable, "int", "enable");
     QUERY->doc_func(QUERY, "Get sound rendering status. 1 is enable, 0 is disable.");
 
-    // this reserves a variable in the ChucK internal class to store 
+    // this reserves a variable in the ChucK internal class to store
     // referene to the c++ class we defined above
     rave_data_offset = QUERY->add_mvar(QUERY, "int", "@r_data", false);
 
@@ -452,10 +477,58 @@ CK_DLL_CTOR(rave_ctor)
 
     // cast SELF as a chuck_ugen so that we can get channel info
     Chuck_UGen* self = (Chuck_UGen*)SELF;
-    
+
     // instantiate our internal c++ class representation
     Rave * r_obj = new Rave(API->vm->srate(VM), self);
 
+    // store the pointer in the ChucK object member
+    OBJ_MEMBER_INT(SELF, rave_data_offset) = (t_CKINT) r_obj;
+}
+
+
+
+// implementation for the constructor
+CK_DLL_CTOR(rave_ctor_model)
+{
+    // get the offset where we'll store our internal c++ class pointer
+    OBJ_MEMBER_INT(SELF, rave_data_offset) = 0;
+
+    // cast SELF as a chuck_ugen so that we can get channel info
+    Chuck_UGen* self = (Chuck_UGen*)SELF;
+
+    // instantiate our internal c++ class representation
+    Rave * r_obj = new Rave(API->vm->srate(VM), self);
+
+    Chuck_String* mdl = GET_NEXT_STRING(ARGS);
+    std::string model_name = std::string(API->object->str(mdl));
+
+    r_obj->load(model_name);
+
+    // store the pointer in the ChucK object member
+    OBJ_MEMBER_INT(SELF, rave_data_offset) = (t_CKINT) r_obj;
+}
+
+// implementation for the constructor
+CK_DLL_CTOR(rave_ctor_method)
+{
+    // get the offset where we'll store our internal c++ class pointer
+    OBJ_MEMBER_INT(SELF, rave_data_offset) = 0;
+
+    // cast SELF as a chuck_ugen so that we can get channel info
+    Chuck_UGen* self = (Chuck_UGen*)SELF;
+
+    // instantiate our internal c++ class representation
+    Rave * r_obj = new Rave(API->vm->srate(VM), self);
+
+    Chuck_String* mdl = GET_NEXT_STRING(ARGS);
+    std::string model_name = std::string(API->object->str(mdl));
+
+    Chuck_String* mthd = GET_NEXT_STRING(ARGS);
+    std::string method_name = std::string(API->object->str(mthd));
+
+    r_obj->load(model_name);
+    r_obj->setMethod(method_name);
+    
     // store the pointer in the ChucK object member
     OBJ_MEMBER_INT(SELF, rave_data_offset) = (t_CKINT) r_obj;
 }
@@ -482,7 +555,7 @@ CK_DLL_TICKF(rave_tickf)
 {
     // get our c++ class pointer
     Rave * r_obj = (Rave *) OBJ_MEMBER_INT(SELF, rave_data_offset);
- 
+
     // invoke our tick function; store in the magical out variable
     if(r_obj) r_obj->tick(in, out, nframes);
 
@@ -492,6 +565,18 @@ CK_DLL_TICKF(rave_tickf)
 
 CK_DLL_SFUN(rave_getVersion) {
   RETURN->v_string = (Chuck_String*)API->object->create_string(VM, VERSION, false);
+}
+
+CK_DLL_SFUN(rave_getCelloModel) {
+  std::string model_path = chugin_dir + "/models/chafe_cello.ts";
+
+  RETURN->v_string = (Chuck_String*)API->object->create_string(VM, model_path.c_str(), false);
+}
+
+CK_DLL_SFUN(rave_getDowntempoHouseModel) {
+  std::string model_path = chugin_dir + "/models/downtempo_house.ts";
+
+  RETURN->v_string = (Chuck_String*)API->object->create_string(VM, model_path.c_str(), false);
 }
 
 CK_DLL_MFUN(rave_load)

@@ -1,6 +1,6 @@
 @import "Rave"
 
-"rave_chafe_data_rt.ts" => string model;
+Rave.celloModel() => string model;
 "forward" => string method;
 
 Rave r1, r2, r3;

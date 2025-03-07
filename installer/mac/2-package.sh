@@ -8,6 +8,9 @@ RAVE_arm64=Rave-arm64
 # don't change this
 RAVE_ub=Rave
 
+# dir location of this bash script
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 echo "removing and recreating '${RAVE_ub}' directory..."
 rm -rf ${RAVE_ub}
 mkdir ${RAVE_ub}
@@ -35,16 +38,21 @@ cp -v ${RAVE_x86_64}/libjitbackend_test.dylib ${RAVE_ub}
 cp -v ${RAVE_x86_64}/libtorchbind_test.dylib ${RAVE_ub}/
 
 # copy Rave folder into mirrored installed path
-cp -af ${RAVE_ub} Rave.tmp/usr/local/lib/chuck/
+# cp -af ${RAVE_ub} Rave.tmp/usr/local/lib/chuck/
 
 # create installer PKG file
-pkgbuild --root Rave.tmp --identifier edu.stanford.chugin.Rave Rave-unsigned.pkg
+# pkgbuild --root Rave.tmp --identifier edu.stanford.chugin.Rave Rave-unsigned.pkg
 
-# codesign the installer
-codesign --deep --force --verify --verbose --timestamp --options runtime --entitlements rave.entitlements --sign "Developer ID Application" Rave-unsigned.pkg
+# run chumpinate here
+
+# codesign the chump file
+codesign --deep --force --verify --verbose --timestamp --options runtime --entitlements "${SCRIPT_DIR}/Chugin.entitlements" --sign "Developer ID Application" Rave_mac.zip
+
+echo "notarizing PlinkyRev.chug..."
+${SCRIPT_DIR}/notarize.sh Rave_mac.zip
 
 # productsign the installer
-productsign --sign "Developer ID Installer" ./Rave-unsigned.pkg ./Rave.chug.pkg
+# productsign --sign "Developer ID Installer" ./Rave-unsigned.pkg ./Rave.chug.pkg
 
 # check signature
-pkgutil --check-signature ./Rave.chug.pkg
+# pkgutil --check-signature ./Rave.chug.pkg
