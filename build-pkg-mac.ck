@@ -35,6 +35,8 @@ PackageVersion ver("Rave", version);
 
 // The chugin file
 ver.addFile("Rave_ub/Rave.chug");
+ver.addFile("models/chafe_cello.ts", "models");
+ver.addFile("models/downtempo_house.ts", "models");
 ver.addFile("Rave_ub/libc10.dylib");
 ver.addFile("Rave_ub/libfbjni.dylib");
 ver.addFile("Rave_ub/libpytorch_jni.dylib");

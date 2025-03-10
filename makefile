@@ -24,6 +24,10 @@ build-x86_64:
 	cmake -B build-x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64
 	cmake --build build-x86_64 --target install
 
+build-arm64-debug:
+	cmake -B build-arm64-debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_OSX_ARCHITECTURES=arm64
+	cmake --build build-arm64-debug --target install
+
 # download the models from ccrma servers so we don't have to add them to the repo
 download-models:
 	mkdir -p models
