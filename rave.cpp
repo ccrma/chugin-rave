@@ -424,7 +424,7 @@ CK_DLL_QUERY( rave )
     QUERY->add_sfun(QUERY, rave_getCelloModel, "string", "celloModel");
     QUERY->doc_func(QUERY, "Get the path to the included cello model.");
 
-    QUERY->add_sfun(QUERY, rave_getCelloModel, "string", "downtempoHouseModel");
+    QUERY->add_sfun(QUERY, rave_getDowntempoHouseModel, "string", "downtempoHouseModel");
     QUERY->doc_func(QUERY, "Get the path to the included downtempo house model.");
 
     QUERY->add_mfun(QUERY, rave_getModel, "string", "model");
@@ -568,7 +568,7 @@ CK_DLL_SFUN(rave_getVersion) {
 }
 
 CK_DLL_SFUN(rave_getCelloModel) {
-  std::string model_path = chugin_dir + "/models/chafe_cello.ts";
+  std::string model_path = chugin_dir + "/models/rave_chafe_data_rt.ts";
 
   RETURN->v_string = (Chuck_String*)API->object->create_string(VM, model_path.c_str(), false);
 }

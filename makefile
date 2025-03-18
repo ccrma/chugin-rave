@@ -31,7 +31,7 @@ build-arm64-debug:
 # download the models from ccrma servers so we don't have to add them to the repo
 download-models:
 	mkdir -p models
-	curl -z models/chafe_cello.ts -o models/chafe_cello.ts https://ccrma.stanford.edu/~nshaheed/rave_models/chafe_cello.ts
+	curl -z models/chafe_cello.ts -o models/rave_chafe_data_rt.ts https://ccrma.stanford.edu/~nshaheed/rave_models/rave_chafe_data_rt.ts
 	curl -z models/downtempo_house.ts -o models/downtempo_house.ts https://ccrma.stanford.edu/~nshaheed/rave_models/downtempo_house.ts
 
 clean: 
