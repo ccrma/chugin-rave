@@ -35,7 +35,7 @@ PackageVersion ver("Rave", version);
 
 // The chugin file
 ver.addFile("Rave_ub/Rave.chug");
-ver.addFile("models/chafe_cello.ts", "models");
+ver.addFile("models/rave_chafe_data_rt.ts", "models");
 ver.addFile("models/downtempo_house.ts", "models");
 ver.addFile("Rave_ub/libc10.dylib");
 ver.addFile("Rave_ub/libfbjni.dylib");
@@ -55,6 +55,7 @@ ver.addExampleFile("lfo.ck");
 ver.addExampleFile("rave_test.ck");
 ver.addExampleFile("help.ck");
 ver.addExampleFile("mic.ck");
+ver.addExampleFile("blit.ck");
 
 // The version path
 "chugins/Rave/" + ver.version() + "/" + ver.os() + "/Rave.zip" => string path;
